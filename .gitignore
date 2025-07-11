@@ -1,5 +1,6 @@
 /data/training_pairs
 /runs/
+/experiments/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

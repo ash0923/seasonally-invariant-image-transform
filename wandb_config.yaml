@@ -1,0 +1,145 @@
+# Wandb Configuration for Seasonally Invariant Image Transform
+# This file contains default settings for wandb logging
+
+# Default project settings
+default_project: "seasonally-invariant-transform"
+default_entity: null  # Set your wandb username here if needed
+
+# Common experiment configurations
+experiments:
+  multipoint:
+    name: "multipoint-training"
+    description: "MultiPoint keypoint detection training"
+    
+  siamese_ncc:
+    name: "siamese-ncc-training"
+    description: "Siamese network training with NCC loss"
+    
+  siamese_sift:
+    name: "siamese-sift-training"
+    description: "Siamese network training with SIFT loss"
+
+# Logging settings
+logging:
+  # Metrics to log
+  metrics:
+    - "train_loss"
+    - "validation_loss"
+    - "test_loss"
+    - "learning_rate"
+    - "epoch"
+  
+  # Model checkpoints to save
+  save_models:
+    - "best_test_weights.pt"
+    - "best_train_weights.pt"
+    - "latest.model"
+  
+  # Log frequency (every N epochs)
+  log_frequency: 1
+  
+  # Save model frequency
+  save_frequency: 5
+
+# Visualization settings
+visualization:
+  # Enable custom plots
+  enable_plots: true
+  
+  # Plot types
+  plots:
+    - "loss_curves"
+    - "learning_rate_schedule"
+    - "model_architecture"
+  
+  # Image logging (if applicable)
+  log_images: false
+  image_frequency: 10
+
+# Environment settings
+environment:
+  # Tags for experiment organization
+  tags:
+    - "seasonal-invariance"
+    - "terrain-navigation"
+    - "computer-vision"
+  
+  # Notes template
+  notes_template: |
+    Training run for seasonally invariant image transform.
+    Model: {model_type}
+    Dataset: {dataset_path}
+    Epochs: {epochs}
+    Batch size: {batch_size}# Wandb Configuration for Seasonally Invariant Image Transform
+# This file contains default settings for wandb logging
+
+# Default project settings
+default_project: "seasonally-invariant-transform"
+default_entity: null  # Set your wandb username here if needed
+
+# Common experiment configurations
+experiments:
+  multipoint:
+    name: "multipoint-training"
+    description: "MultiPoint keypoint detection training"
+    
+  siamese_ncc:
+    name: "siamese-ncc-training"
+    description: "Siamese network training with NCC loss"
+    
+  siamese_sift:
+    name: "siamese-sift-training"
+    description: "Siamese network training with SIFT loss"
+
+# Logging settings
+logging:
+  # Metrics to log
+  metrics:
+    - "train_loss"
+    - "validation_loss"
+    - "test_loss"
+    - "learning_rate"
+    - "epoch"
+  
+  # Model checkpoints to save
+  save_models:
+    - "best_test_weights.pt"
+    - "best_train_weights.pt"
+    - "latest.model"
+  
+  # Log frequency (every N epochs)
+  log_frequency: 1
+  
+  # Save model frequency
+  save_frequency: 5
+
+# Visualization settings
+visualization:
+  # Enable custom plots
+  enable_plots: true
+  
+  # Plot types
+  plots:
+    - "loss_curves"
+    - "learning_rate_schedule"
+    - "model_architecture"
+  
+  # Image logging (if applicable)
+  log_images: false
+  image_frequency: 10
+
+# Environment settings
+environment:
+  # Tags for experiment organization
+  tags:
+    - "seasonal-invariance"
+    - "terrain-navigation"
+    - "computer-vision"
+  
+  # Notes template
+  notes_template: |
+    Training run for seasonally invariant image transform.
+    Model: {model_type}
+    Dataset: {dataset_path}
+    Epochs: {epochs}
+    Batch size: {batch_size}  

@@ -12,6 +12,7 @@ import torch.optim as optim
 import torch.utils.data as utils
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
+import wandb
 
 from dataset.neg_dataset import SiameseDataset
 from model.correlator import Correlator
@@ -78,6 +79,25 @@ def train(opt, weights_folder):
 
     writer = SummaryWriter(os.path.join('runs', opt.exp_name))
 
+    # Initialize wandb if requested
+    if hasattr(opt, 'use_wandb') and opt.use_wandb:
+        wandb.init(
+            project=getattr(opt, 'wandb_project', 'seasonally-invariant-transform'),
+            entity=getattr(opt, 'wandb_entity', None),
+            name=getattr(opt, 'wandb_run_name', opt.exp_name),
+            config={
+                'epochs': opt.epochs,
+                'batch_size': opt.batch_size,
+                'device': opt.device,
+                'num_workers': opt.num_workers,
+                'negative_weighting_train': opt.negative_weighting_train,
+                'train_proportion': opt.train_proportion,
+                'training_data_dir': opt.training_data_dir,
+                'validation_data_dir': opt.validation_data_dir
+            }
+        )
+        print(f"Wandb initialized: {wandb.run.name}")
+
     # Load datasets
     trainset = SiameseDataset(data_root=opt.training_data_dir, negative_weighting=opt.negative_weighting_train, samples_to_use=opt.train_proportion)
     trainloader = utils.DataLoader(trainset, batch_size=opt.batch_size, shuffle=True, num_workers=opt.num_workers, pin_memory=True)
@@ -121,15 +141,34 @@ def train(opt, weights_folder):
 
             total_train_loss = train_metrics[0]
             total_test_loss = test_metrics[0]
+            
+            # Log metrics to wandb
+            if hasattr(opt, 'use_wandb') and opt.use_wandb:
+                wandb.log({
+                    'train_loss': total_train_loss,
+                    'test_loss': total_test_loss,
+                    'epoch': epoch,
+                    'learning_rate': optimizer.param_groups[0]['lr']
+                })
+            
             if total_test_loss <= test_best_loss:
                 test_best_loss = total_test_loss
-                torch.save(model.state_dict(), os.path.join(weights_folder, 'best_test_weights.pt'))
+                best_test_path = os.path.join(weights_folder, 'best_test_weights.pt')
+                torch.save(model.state_dict(), best_test_path)
+                if hasattr(opt, 'use_wandb') and opt.use_wandb:
+                    wandb.save(best_test_path)
 
             if total_train_loss <= train_best_loss:
                 train_best_loss = total_train_loss
-                torch.save(model.state_dict(), os.path.join(weights_folder, 'best_train_weights.pt'))
+                best_train_path = os.path.join(weights_folder, 'best_train_weights.pt')
+                torch.save(model.state_dict(), best_train_path)
+                if hasattr(opt, 'use_wandb') and opt.use_wandb:
+                    wandb.save(best_train_path)
 
             write_tensorboard(writer, test_metric_labels, test_metrics, epoch)
+    
+    if hasattr(opt, 'use_wandb') and opt.use_wandb:
+        wandb.finish()
     print('Finished Training')
 
 if __name__ == '__main__':
@@ -145,6 +184,12 @@ if __name__ == '__main__':
 
     parser.add_argument('--negative_weighting_train', type=float, default=0.5)
     parser.add_argument('--train_proportion', type=float, default=1, help='ratio of dataset to use during training')
+
+    # Wandb arguments
+    parser.add_argument('--use_wandb', action='store_true', help='Enable wandb logging')
+    parser.add_argument('--wandb_project', default='seasonally-invariant-transform', help='Wandb project name')
+    parser.add_argument('--wandb_entity', default=None, help='Wandb entity/username')
+    parser.add_argument('--wandb_run_name', default=None, help='Wandb run name')
 
     opt = parser.parse_args()
     print(opt)
